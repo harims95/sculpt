@@ -1,0 +1,27 @@
+{
+  "name": "sculpt",
+  "version": "0.1.0",
+  "description": "We don't build agents. We sculpt them.",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=packages/chisel",
+    "build": "npm run build --workspace=packages/chisel",
+    "test": "npm test --workspaces",
+    "lint": "eslint packages/*/src"
+  },
+  "keywords": [
+    "ai-agents",
+    "sculpting",
+    "subtractive",
+    "llm",
+    "claude",
+    "agent-builder"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
