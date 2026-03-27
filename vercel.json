@@ -1,7 +1,7 @@
 {
   "buildCommand": "npm run build --workspace=packages/chisel",
   "outputDirectory": "packages/chisel/.next",
-  "installCommand": "npm install && npm run db:generate",
+  "installCommand": "npm install && npm run db:generate --workspace=packages/db",
   "framework": "nextjs",
   "rewrites": [
     { "source": "/(.*)", "destination": "/$1" }
