@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { SculptureSpec } from "@sculpt/spec";
+import { WORKSHOP_URL } from "@/app/lib/workshop";
 
 interface Message {
   role: "user" | "agent";
@@ -58,7 +59,7 @@ export default function AgentPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:3001/agent/${id}/chat`, {
+      const res = await fetch(`${WORKSHOP_URL}/agent/${id}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SculptureSpec } from "@sculpt/spec";
+import { WORKSHOP_URL } from "@/app/lib/workshop";
 import Link from "next/link";
 
 export default function XRayPage() {
@@ -134,7 +135,7 @@ export default function XRayPage() {
 async function lockAndDeploy(spec: SculptureSpec, router: ReturnType<typeof useRouter>) {
   // Load spec into workshop, then navigate to agent chat
   try {
-    const res = await fetch(`http://localhost:3001/specs`, {
+    const res = await fetch(`${WORKSHOP_URL}/specs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(spec),

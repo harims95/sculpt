@@ -1,0 +1,10 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "packages/workshop/Dockerfile"
+
+[deploy]
+startCommand = "node packages/workshop/dist/server.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

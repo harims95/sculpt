@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { RockDustEntry } from "@sculpt/spec";
+import { WORKSHOP_URL } from "@/app/lib/workshop";
 import Link from "next/link";
 
 export default function DustPage() {
@@ -11,7 +12,7 @@ export default function DustPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/agent/${id}/dust`)
+    fetch(`${WORKSHOP_URL}/agent/${id}/dust`)
       .then((r) => r.json())
       .then((data) => setDust(data.dust ?? []))
       .catch(() => setDust([]))
