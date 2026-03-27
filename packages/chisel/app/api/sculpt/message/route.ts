@@ -36,23 +36,30 @@ export async function POST(req: NextRequest) {
     content: m.content,
   }));
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 512,
-      system: META_PROMPT,
-      messages: anthropicMessages,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 512,
+        system: META_PROMPT,
+        messages: anthropicMessages,
+      }),
+    });
+  } catch (e) {
+    console.error("Fetch to Anthropic failed:", e);
+    return NextResponse.json({ error: String(e) }, { status: 500 });
+  }
 
   if (!response.ok) {
     const err = await response.text();
+    console.error("Anthropic error response:", err);
     return NextResponse.json({ error: err }, { status: 500 });
   }
 
