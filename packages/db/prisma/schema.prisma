@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  clerkId      String   @unique  // Clerk user ID
+  email        String   @unique
+  apiKeyEnc    String?           // AES-256 encrypted Anthropic API key
+  tier         Tier     @default(FREE)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  agents       Agent[]
+  sessions     SculptSession[]
+
+  @@map("users")
+}
+
+enum Tier {
+  FREE
+  STUDIO
+  ENTERPRISE
+}
+
+// ─── Agents ───────────────────────────────────────────────────────────────────
+
+model Agent {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String      @default("")
+  status      AgentStatus @default(ACTIVE)
+  spec        Json                          // Full SculptureSpec as JSONB
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  snapshots   Snapshot[]
+  rockDust    RockDust[]
+
+  @@map("agents")
+}
+
+enum AgentStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+// ─── Snapshots ────────────────────────────────────────────────────────────────
+
+model Snapshot {
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  version   Int
+  spec      Json                            // Frozen SculptureSpec at this version
+  createdAt DateTime @default(now())
+
+  @@map("snapshots")
+}
+
+// ─── Rock Dust (append-only audit log) ───────────────────────────────────────
+
+model RockDust {
+  id         String   @id @default(cuid())
+  agentId    String
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  action     String                         // added | removed | modified | locked | rolled_back
+  target     String                         // tool | pattern | prompt | capability | escalation
+  detail     String
+  reasoning  String
+  approvedBy String
+  createdAt  DateTime @default(now())
+
+  @@map("rock_dust")
+}
+
+// ─── Sculpting Sessions ───────────────────────────────────────────────────────
+
+model SculptSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Json     @default("[]")         // Array of {role, content}
+  phase     String   @default("blueprint")
+  draftSpec Json?                           // Partially generated spec
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sculpt_sessions")
+}
