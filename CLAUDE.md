@@ -1,62 +1,65 @@
 # Sculpt — Claude Code Context
 
 ## What this project is
-A platform to build AI agents subtractively — start with a full AI and carve away capabilities you don't want. The result is safer, more focused agents because removed capabilities literally don't exist in the API call.
+A platform to build AI agents subtractively — start with a full AI and carve away capabilities you don't want. Production-ready MVP built for fundraising.
 
-Three components:
-- **Chisel** (`packages/chisel`) — Next.js 16 UI for the sculpting conversation
-- **Spec** (`packages/spec`) — Shared TypeScript types + validator for the Sculpture Spec JSON
-- **Workshop** (`packages/workshop`) — Express proxy that enforces the spec via three walls
+## Packages
+| Package | Status | Description |
+|---|---|---|
+| `packages/spec` | ✅ 8/8 tests | TypeScript types + validator |
+| `packages/workshop` | ✅ 13/13 tests | Express proxy (3 walls) |
+| `packages/chisel` | ✅ TypeScript clean | Next.js 16 full UI |
+| `packages/db` | ✅ TypeScript clean | Prisma + PostgreSQL |
 
-## Current State
+## MVP is complete — ready to deploy
 
-### ✅ packages/spec — COMPLETE (8/8 tests)
+### Run locally
 ```bash
-cd packages/spec && npm test
-```
-Files: `src/types.ts`, `src/validator.ts`, `src/helpers.ts`, `src/index.ts`
+cp packages/chisel/.env.local.example packages/chisel/.env.local
+# Fill: ANTHROPIC_API_KEY, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY,
+#       DATABASE_URL, ENCRYPTION_KEY, NEXT_PUBLIC_WORKSHOP_URL
 
-### ✅ packages/workshop — COMPLETE (13/13 tests)
-```bash
-cd packages/workshop && npm test
+npm run db:push        # run DB migrations (once)
+npm run dev            # chisel → http://localhost:3000
+npm run workshop:dev   # workshop → http://localhost:3001 (separate terminal)
 ```
-Files: `src/walls/wall1.ts`, `wall2.ts`, `wall3.ts`, `src/adapters/anthropic.ts`, `src/specLoader.ts`, `src/rockDust.ts`, `src/server.ts`
 
-### ✅ packages/chisel — COMPLETE (TypeScript clean)
-```bash
-# Add ANTHROPIC_API_KEY to packages/chisel/.env.local first
-npm run dev   # from root — opens at http://localhost:3000
-```
-Files: `app/globals.css` (design tokens), `app/page.tsx` (landing), `app/sculpt/page.tsx` (chat UI), `app/api/sculpt/message/route.ts` (Claude API)
+### Deploy (see DEPLOY.md for full steps)
+1. **Neon** — free PostgreSQL → `DATABASE_URL`
+2. **Clerk** — auth keys + webhook secret
+3. **Railway** — deploy workshop via Dockerfile
+4. **Vercel** — deploy chisel, set all env vars
 
-## What's next
-1. ⬜ Spec generator — conversation → Sculpture Spec JSON
-2. ⬜ X-Ray visualization page
-3. ⬜ Chisel Lock + snapshot versioning
-4. ⬜ /agent/[id] page — live agent chat via Workshop
-5. ⬜ Dashboard — list agents, specs, rock dust
-6. ⬜ Database (PostgreSQL + Redis)
-7. ⬜ Auth (Clerk) + Deployment (Vercel + Railway)
+## Pages
+- `/` — landing
+- `/sign-in` `/sign-up` — Clerk auth
+- `/sculpt` — sculpting conversation (protected)
+- `/sculpt/xray` — X-Ray spec review + Chisel Lock
+- `/agent/[id]` — live chat with deployed agent
+- `/agent/[id]/dust` — Rock Dust audit log
+- `/dashboard` — all user's agents
 
 ## Key Technical Decisions
-- npm workspaces monorepo (branch: master)
-- Next.js 16 + Tailwind 4 (latest — has breaking changes vs v14)
+- npm workspaces monorepo, branch: master
+- Next.js 16 + Tailwind 4 (breaking changes vs v14 — read AGENTS.md in chisel)
+- Clerk v7 — use `useAuth()` hook, `SignInButton`/`SignUpButton` (NO `SignedIn`/`SignedOut`)
 - Jest hoisted to root — run via `../../node_modules/jest/bin/jest.js`
-- Wall 1 is strongest — denied tools never passed to model API
-- Wall 2 uses regex in v1 (AI-powered is v1.1)
-- Wall 3 is weakest — relies on model following system prompt
+- Wall 1 strongest — denied tools never in API call
+- Wall 2 regex v1, AI-powered v1.1
 - Heartbeat (`reasoning`, `language_understanding`, `context_awareness`) cannot be denied
-- Chisel uses `claude-haiku-4-5-20251001` for sculpting conversation
+- Workshop auto-switches: in-memory if no DATABASE_URL, PostgreSQL if set
+- API keys encrypted AES-256-GCM via `packages/db/src/crypto.ts`
+- `NEXT_PUBLIC_WORKSHOP_URL` env var controls workshop endpoint (no hardcoded localhost)
 
-## Sculpture Spec (core data structure)
-- `rock` — model provider + model name
-- `walls.wall_1_tools` — allowed/denied tool lists
-- `walls.wall_2_interception` — regex patterns to block in output
-- `walls.wall_3_context` — system prompt + hidden capabilities
-- `heartbeat` — immutable core capabilities
-- `rock_dust` — append-only audit log
+## What's next (post-MVP / v2)
+- Stripe payments
+- Analytics + usage metrics
+- Agent public sharing / gallery
+- Rate limiting
+- Redis cache
+- Mobile app
 
 ## Reference
 - Architecture doc: `docs/ARCHITECTURE.pdf`
-- Issues roadmap: `docs/INITIAL_ISSUES.md`
+- Deployment guide: `DEPLOY.md`
 - GitHub: https://github.com/harims95/sculpt
