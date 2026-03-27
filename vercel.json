@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm run build -w @sculpt/spec && npm run build -w @sculpt/db && npm run build -w @sculpt/chisel",
-  "outputDirectory": "packages/chisel/.next",
-  "installCommand": "npm install",
+  "buildCommand": "cd ../.. && npm run build -w @sculpt/spec && npm run build -w @sculpt/db && npx next build",
+  "outputDirectory": ".next",
+  "installCommand": "cd ../.. && npm install",
   "framework": "nextjs",
   "rewrites": [
     { "source": "/(.*)", "destination": "/$1" }
