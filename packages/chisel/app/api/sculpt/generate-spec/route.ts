@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateSpec, createEmptySpec } from "@sculpt/spec";
+import { auth } from "@clerk/nextjs/server";
+import { validateSpec } from "@sculpt/spec";
 import type { SculptureSpec } from "@sculpt/spec";
+import { getUserByClerkId, createAgent } from "@sculpt/db";
 
 interface Message {
   role: "sculptor" | "rock";
@@ -59,10 +61,8 @@ Rules:
 - Only output valid JSON, nothing else — no markdown, no explanation`;
 
 export async function POST(req: NextRequest) {
-  const { messages, sculptorId } = (await req.json()) as {
-    messages: Message[];
-    sculptorId?: string;
-  };
+  const { userId: clerkId } = await auth();
+  const { messages } = (await req.json()) as { messages: Message[] };
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -115,10 +115,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Resolve real user ID
+  let dbUserId = "guest";
+  if (clerkId) {
+    const user = await getUserByClerkId(clerkId);
+    if (user) dbUserId = user.id;
+  }
+
   // Override id and sculptor_id with real values
   spec.id = `sculpt_${Math.random().toString(36).slice(2, 8)}`;
   spec.created_at = new Date().toISOString();
-  spec.sculptor_id = sculptorId ?? "user_unknown";
+  spec.sculptor_id = dbUserId;
   spec.snapshots = [];
   spec.rock_dust = [];
 
@@ -133,6 +140,15 @@ export async function POST(req: NextRequest) {
         { error: "Generated spec failed validation", errors: recheck.errors, spec },
         { status: 422 }
       );
+    }
+  }
+
+  // Persist agent to database if user is authenticated
+  if (dbUserId !== "guest") {
+    try {
+      await createAgent(dbUserId, spec);
+    } catch {
+      // Non-fatal — spec is still returned to client
     }
   }
 
