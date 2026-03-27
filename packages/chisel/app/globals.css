@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* ─── Sculpt Design Tokens ─────────────────────────────────────────────────── */
+
+:root {
+  /* Sculptor — warm gold */
+  --sculptor-primary: #C9963A;
+  --sculptor-bg: #2A2118;
+  --sculptor-surface: #1E180F;
+  --sculptor-text: #E8DCC0;
+  --sculptor-muted: #A89878;
+  --sculptor-border: #4A3820;
+
+  /* Rock — cool silver-blue */
+  --rock-primary: #7B8DA6;
+  --rock-bg: #141B26;
+  --rock-surface: #0E1520;
+  --rock-text: #B0B8C8;
+  --rock-muted: #5A6A80;
+  --rock-border: #253045;
+
+  /* Base */
+  --background: #0F0F12;
+  --foreground: #E8DCC0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sculptor-primary: var(--sculptor-primary);
+  --color-sculptor-bg: var(--sculptor-bg);
+  --color-sculptor-surface: var(--sculptor-surface);
+  --color-sculptor-text: var(--sculptor-text);
+  --color-sculptor-muted: var(--sculptor-muted);
+  --color-sculptor-border: var(--sculptor-border);
+  --color-rock-primary: var(--rock-primary);
+  --color-rock-bg: var(--rock-bg);
+  --color-rock-surface: var(--rock-surface);
+  --color-rock-text: var(--rock-text);
+  --color-rock-muted: var(--rock-muted);
+  --color-rock-border: var(--rock-border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--rock-surface); }
+::-webkit-scrollbar-thumb { background: var(--rock-border); border-radius: 3px; }
