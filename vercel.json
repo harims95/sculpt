@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build --workspace=packages/chisel",
+  "buildCommand": "npm run build -w @sculpt/chisel",
   "outputDirectory": "packages/chisel/.next",
   "installCommand": "npm install",
   "framework": "nextjs",
