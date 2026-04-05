@@ -7,8 +7,8 @@ COPY packages/spec/package.json ./packages/spec/
 COPY packages/db/package.json ./packages/db/
 COPY packages/workshop/package.json ./packages/workshop/
 
-# Install all dependencies (skip postinstall — schema not copied yet)
-RUN npm install --ignore-scripts
+# Install all dependencies
+RUN npm install
 
 # Copy source
 COPY packages/spec/ ./packages/spec/
